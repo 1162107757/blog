@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hjie.mapper.UserMapper">
+	<select id="getUser" resultType="user">
+		SELECT 
+		  userId,
+		  userName,
+		  sex,
+		  birthday,
+		  country,
+		  province,
+		  city,
+		  area,
+		  `status`,
+		  account,
+		  registerDate,
+		  endLoginDate,
+		  email,
+		  phone,
+		  headUrl 
+		FROM
+		  `user` 
+		WHERE userName = #{userName}
+		AND `password` = #{password}
+	</select>
+	
+	<select id="getAllUser" resultType="user" parameterType="top.hjie.pojo.info.UserSerachInfo">
+		SELECT 
+		  userId,
+		  userCode,
+		  userName,
+		  sex,
+		  birthday,
+		  country,
+		  province,
+		  city,
+		  area,
+		  `status`,
+		  account,
+		  registerDate,
+		  endLoginDate,
+		  email,
+		  phone,
+		  headUrl 
+		FROM
+		  `user`
+		<where>
+			<if test="userInfo != null and userInfo != ''">
+				AND CONCAT(userName,userCode) LIKE '%${userInfo}%'
+			</if>
+			<choose>
+				<when test="regStartDate != null and regStartDate != '' and regEndDate != null and regEndDate != ''">
+					AND registerDate BETWEEN #{regStartDate} AND #{regEndDate}
+				</when>
+				<otherwise>
+					<if test="regStartDate != null and regStartDate != ''">
+						AND registerDate BETWEEN #{regStartDate} AND date_format(now(), '%Y-%m-%d %H:%i:%s')
+					</if>
+					<if test="regEndDate != null and regEndDate != ''">
+						AND registerDate BETWEEN '1970-01-01 00:00:00' AND #{regEndDate}
+					</if>
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+</mapper>

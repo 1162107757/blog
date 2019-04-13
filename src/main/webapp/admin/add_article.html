@@ -1,0 +1,76 @@
+<!doctype html>
+<div class="breadcrumb">
+	<form onsubmit="return false" class="layui-form">
+		<div style="margin-bottom: 50px;">
+			<h2>发布新文章</h2>
+		</div>
+		<div class="title" style="margin-bottom: 20px;">
+			<input type="text" class="layui-input" placeholder="请输入文章标题" name="title">
+		</div>
+		<div id="editor">
+			
+	    </div>
+	    <div style="display: none;">
+	    	<textarea name="content" id="content">
+	    		
+	    	</textarea>
+	    </div>
+	    <div class="button" style="margin-top: 20px;margin-left: 80%;">
+	    	<button class="layui-btn layui-btn-radius" lay-submit lay-filter="addArticle" id="addArticle">发布</button>
+	    	<button class="layui-btn layui-btn-radius layui-btn-warm" lay-submit lay-filter="cancel" id="cancel">取消</button>
+	    </div>
+	</form>
+</div>
+<script src="./static/js/wangEditor.min.js"></script>
+<script>
+	//创建富文本
+	var url = './upload/editorUploadPicture';
+	var E = window.wangEditor;
+	var editorPro = new E('#editor');
+	// 配置服务器端地址
+    editorPro.customConfig.uploadFileName = 'file';
+    editorPro.customConfig.uploadImgServer = url;
+    editorPro.create();
+    
+    layui.use('form', function(){
+		var form = layui.form;
+		form.on('submit(addArticle)', function(data){
+			$("#content").val(editorPro.txt.html());
+			// 判断标题长度
+			if(data.field.title.replace(/(^\s*)|(\s*$)/g, "").length < 5){
+				layer.msg("标题长度必须超过五个字符！");
+				return;
+			}
+			var content = $("#content").val();
+			if(editorPro.txt.text().replace(/(^\s*)|(\s*$)/g, "").length < 15){
+				layer.msg("文章内容长度必须超过十五个字符！");
+				return;
+			}
+			layer.load();
+			$.ajax({
+				type : 'POST',
+				url : './article/addArticle',
+				data : {"title":data.field.title,"content":content},
+				dataType : 'json',
+				success : function(data){
+					if(data.success){
+						layer.closeAll('loading');
+						layer.msg(data.msg);
+						setTimeout(function(){
+							var index = parent.layer.getFrameIndex(window.name);
+							// 关闭当前窗口
+							layer.close(index);
+							window.location.reload();
+						},2000);
+					}else{
+						layer.msg(data.msg);
+					}
+				}
+			});
+			
+		});
+		form.on('submit(cancel)', function(data){
+			window.location.reload();
+		});
+    });
+</script>

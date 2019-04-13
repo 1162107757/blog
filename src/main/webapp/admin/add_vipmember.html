@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>添加会员</title>
+<script type="text/javascript" src="../static/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../static/layui/layui.js"></script>
+<script type="text/javascript" src="../static/layui/lay/modules/layer.js"></script>
+<link href="../static/layui/css/layui.css" rel="stylesheet">
+<link href="../static/layui/css/modules/layer/default/layer.css" rel="stylesheet">
+<style type="text/css">
+	.layui-form dl{
+		height: 150px;
+	}
+</style>
+</head>
+<body>
+	<div style="margin-top: 10px;">
+		<form onsubmit="return false" class="login-form layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">用户名：</label>
+				<div class="layui-input-block" style="width: 70%;">
+					<input type="text" name="userCode" lay-verify="userCode" autocomplete="off" placeholder="用户名必填" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">昵称：</label>
+				<div class="layui-input-block" style="width: 70%;">
+					<input type="text" name="userName" lay-verify="userName" autocomplete="off" placeholder="昵称必填" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">密码：</label>
+				<div class="layui-input-block" style="width: 70%;">
+					<input type="text" name="password" lay-verify="password" autocomplete="off" placeholder="密码必填" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">生日：</label>
+				<div class="layui-input-inline" style="width: 70%;">
+					<input type="text" name="birthday" id="birthday" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input" readonly="true">
+				</div>
+			 </div>
+			<div class="layui-form-item">
+			    <label class="layui-form-label">性别：</label>
+				<div class="layui-input-block">
+				    <input type="radio" name="sex" value="true" title="男" checked="">
+				    <input type="radio" name="sex" value="false" title="女">
+				</div>
+			</div>
+			<div class="layui-form-item">
+			    <label class="layui-form-label">状态：</label>
+				<div class="layui-input-block">
+				    <input type="radio" name="status" value="true" title="启用" checked="">
+				    <input type="radio" name="status" value="false" title="停用">
+				</div>
+			</div>
+			 <div class="layui-form-item">
+				<label class="layui-form-label">国家：</label>
+				<div class="layui-input-inline">
+					<select name="country" id="country" lay-filter="country" lay-verify="country">
+					</select>
+				</div>
+				<label class="layui-form-label">省：</label>
+				<div class="layui-input-inline">
+					<select name="province" id="province" lay-filter="province" lay-verify="province">
+					</select>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">市：</label>
+				<div class="layui-input-inline">
+					<select name="city" id="city" lay-filter="city" lay-verify="city">
+					</select>
+				</div>
+				<label class="layui-form-label">区：</label>
+				<div class="layui-input-inline">
+					<select name="area" id="area" lay-filter="area" lay-verify="area">
+					</select>
+				</div>
+			</div>   
+			<div class="layui-form-item">
+				<label class="layui-form-label">邮箱：</label>
+				<div class="layui-input-block" style="width: 70%;">
+					<input type="text" name="email" lay-verify="email" autocomplete="off" placeholder="请输入邮箱" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">电话：</label>
+				<div class="layui-input-block" style="width: 70%;">
+					<input type="text" name="phone" lay-verify="phone" autocomplete="off" placeholder="请输入电话号码" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item layui-form-text">
+			    <label class="layui-form-label">个性签名：</label>
+			    <div class="layui-input-block" style="width: 70%;">
+			    	<textarea placeholder="请输入内容" name="account" class="layui-textarea"></textarea>
+				</div>
+			</div>
+			<div style="display: none;">
+		    	<button class="layui-btn" lay-submit lay-filter="addUser" id="addUser">提交</button>
+		    </div>
+		</form>
+	</div>
+</body>
+<script type="text/javascript">
+layui.use(['form', 'layedit', 'laydate'], function(){
+	var form = layui.form
+	  ,layer = layui.layer
+	  ,layedit = layui.layedit
+	  ,laydate = layui.laydate;
+	
+	laydate.render({
+		elem: '#birthday'
+	});
+	
+	$.ajax({
+		type:'POST',
+		url:'../areaDistrict/getAreaDistrictByLevel',
+		dataType:'json',
+		data:{'level':1,'parentId':null},
+		success:function(result){
+			$("#country").empty();
+			$("#country").append('<option value="">国家</option>');
+			for (var i = 0; i < result.length; i++) {
+				$("#country").append('<option value="' + result[i].districtId + '">' + result[i].districtName + '</option>');
+			}
+			form.render();
+		},
+		error : function(errorInfo){
+			layer.msg('系统错误！');
+		}
+	});
+	// 国家发生改变触发加载的省
+	form.on('select(country)', function(data){
+		if(data.value == ''){
+			$("#province").empty();
+			$("#province").append('<option value="">省</option>');
+			$("#city").empty();
+			$("#city").append('<option value="">市</option>');
+			$("#area").empty();
+			$("#area").append('<option value="">区</option>');
+			form.render();
+		}else{
+			$("#province").empty();
+			$("#province").append('<option value="">省</option>');
+			$("#city").empty();
+			$("#city").append('<option value="">市</option>');
+			$("#area").empty();
+			$("#area").append('<option value="">区</option>');
+			$.ajax({
+				type:'POST',
+				url:'../areaDistrict/getAreaDistrictByLevel',
+				dataType:'json',
+				data:{'level':null,'parentId':data.value},
+				success:function(result){
+					$("#province").empty();
+					$("#province").append('<option value="">省</option>');
+					for (var i = 0; i < result.length; i++) {
+						$("#province").append('<option value="' + result[i].districtId + '">' + result[i].districtName + '</option>');
+					}
+					form.render();
+				},
+				error : function(errorInfo){
+					layer.msg('系统错误！');
+				}
+			});
+		}
+	});
+	// 省发生改变触发加载的市
+	form.on('select(province)', function(data){
+		if(data.value == ''){
+			$("#city").empty();
+			$("#city").append('<option value="">市</option>');
+			$("#area").empty();
+			$("#area").append('<option value="">区</option>');
+			form.render();
+		}else{
+			$("#city").empty();
+			$("#city").append('<option value="">市</option>');
+			$("#area").empty();
+			$("#area").append('<option value="">区</option>');
+			$.ajax({
+				type:'POST',
+				url:'../areaDistrict/getAreaDistrictByLevel',
+				dataType:'json',
+				data:{'level':null,'parentId':data.value},
+				success:function(result){
+					$("#city").empty();
+					$("#city").append('<option value="">市</option>');
+					for (var i = 0; i < result.length; i++) {
+						$("#city").append('<option value="' + result[i].districtId + '">' + result[i].districtName + '</option>');
+					}
+					form.render();
+				},
+				error : function(errorInfo){
+					layer.msg('系统错误！');
+				}
+			});
+		}
+	});
+	// 市发生改变触发加载的区
+	form.on('select(city)', function(data){
+		if(data.value == ''){
+			$("#area").empty();
+			$("#area").append('<option value="">区</option>');
+			form.render();
+		}else{
+			$("#area").empty();
+			$("#area").append('<option value="">区</option>');
+			$.ajax({
+				type:'POST',
+				url:'../areaDistrict/getAreaDistrictByLevel',
+				dataType:'json',
+				data:{'level':null,'parentId':data.value},
+				success:function(result){
+					$("#area").empty();
+					$("#area").append('<option value="">区</option>');
+					for (var i = 0; i < result.length; i++) {
+						$("#area").append('<option value="' + result[i].districtId + '">' + result[i].districtName + '</option>');
+					}
+					form.render();
+				},
+				error : function(errorInfo){
+					layer.msg('系统错误！');
+				}
+			});
+		}
+	});
+	form.on('submit(addUser)', function(data){
+		
+		form.verify({
+			userCode: function(value, item){
+				if(value.length <= 0){
+					return '请填写用户名！';
+				}else if(!new RegExp('^[a-zA-Z0-9_-]{4,16}$').test(value)){
+					return '用户名只能包含字母，数字，下划线，减号！';
+				}else if(value.length > 16){
+					return '用户名长度不能超过16位！';
+				}
+			},
+			userName: function(value, item){
+				if(value.length <= 0){
+					return '请填写昵称！';
+				}else if(value.length > 16){
+					return '昵称长度不能超过16位！';
+				}
+			},
+			password:function(value,item){
+				if(value.length < 8){
+					return '密码长度太短，请输入最短8位数的密码！';
+				}else if(value.length > 20){
+					return '密码长度太长，密码不能超过20位！';
+				}
+			},
+			country:function(value,item){
+				if(value == ''){
+					return '请选择国家！';
+				}
+			},
+			province:function(value,item){
+				if(value == ''){
+					return '请选择省份！';
+				}
+			},
+			city:function(value,item){
+				if(value == ''){
+					return '请选择城市！';
+				}
+			},
+			area:function(value,item){
+				if(value == ''){
+					return '请选择地区！';
+				}
+			},
+		}); 
+		
+		$.ajax({
+			type:'POST',
+			url:'../user/addUser',
+			dataType:'json',
+			contentType : 'application/json',
+			data:JSON.stringify(data.field),
+			success:function(result){
+				var index = parent.layer.getFrameIndex(window.name);
+				if(result.success){
+					layer.msg(result.msg);
+					setTimeout(function(){
+						parent.layer.close(index);
+						parent.loadTable();
+					},2000);
+				}else{
+					layer.msg(result.msg);
+				}
+			},
+			error : function(errorInfo){
+				layer.msg('系统错误！');
+			}
+		});
+	});
+	
+	form.render();
+});
+
+function clickAddUser(){
+	$("#addUser").trigger("click");
+}
+
+</script>
+</html>

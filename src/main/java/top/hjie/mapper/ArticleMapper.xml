@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hjie.mapper.ArticleMapper">
+	
+	<select id="getArticleList" resultType="article">
+		SELECT 
+		  articleId,
+		  title,
+		  content,
+		  releaseTime,
+		  updateTime,
+		  updateUserId,
+		  createUserId,
+		  views,
+		  likes,
+		  isComment 
+		FROM
+		  article
+		WHERE title LIKE '%${searchContent}%'
+		ORDER BY releaseTime DESC
+	</select>
+	
+	<select id="delArticle" >
+		DELETE FROM article WHERE articleId IN
+		<foreach collection="articleIds" item="item" index="index" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="getArticle" resultType="article">
+		SELECT 
+		  a.articleId,
+		  a.title,
+		  a.content,
+		  a.releaseTime,
+		  a.updateTime,
+		  a.updateUserId,
+		  a.createUserId,
+		  a.views,
+		  a.likes,
+		  a.isComment,
+		  u.userName 
+		FROM
+		  article a 
+		  LEFT JOIN `user` u 
+		    ON a.createUserId = u.userId 
+		WHERE a.articleId = #{articleId}
+	</select>
+	
+</mapper>

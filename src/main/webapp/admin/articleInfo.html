@@ -1,0 +1,75 @@
+<style>
+	.article_content img{
+		display:block;
+		margin:0 auto;
+	}
+</style>
+<div class="breadcrumb">
+	<div>
+		<div align="center" style="margin-top: 30px;" class="articleTitle">
+		</div>
+		<div style="margin-left: 80%;margin-top: 30px;">
+			————<span class="userName"></span>
+		</div>
+		<div style="margin-top: 30px;" class="article_content">
+			
+		</div>
+		<div style="margin-top: 50px;">
+			<div style="margin-left: 60%;">
+				<div style="display: inline-block;">
+					<div class="glyphicon glyphicon-eye-open" style="display: inline-block;float: left;margin-top: 2px;margin-right: 5px;"></div>
+					<a href="javascript:void(0);" class="views"></a>
+				</div>
+				<div style="display: inline-block;margin-left: 15px;">
+					<div class="glyphicon glyphicon-thumbs-up" style="display: inline-block;float: left;margin-top: 2px;margin-right: 5px;"></div>
+					<a href="javascript:void(0);" class="likes"></a>
+				</div>
+				<div style="display: inline-block;margin-left: 15px;">
+					<div class="glyphicon glyphicon-list-alt" style="display: inline-block;float: left;margin-top: 2px;margin-right: 5px;"></div>
+					<a href="javascript:void(0);" class="comment">评论(520)</a>
+				</div>
+				<div style="display: inline-block;margin-left: 15px;">
+					<div class="glyphicon glyphicon-remove" style="display: inline-block;float: left;margin-top: 2px;margin-right: 5px;"></div>
+					<a href="javascript:void(0);" class="delArticle">删除</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	$(function(){
+		var articleId = '';
+		var url = this.location.search;
+		var param = url.replace("?","");
+		var keyAndVal = param.split("&");
+		console.log(keyAndVal);
+		for (var i = 0; i < keyAndVal.length; i++) {
+			console.log(keyAndVal[i]);
+			if(keyAndVal[i].indexOf("articleId") != -1){
+				articleId = keyAndVal[i].split("=")[1];
+			}
+		}
+		// 得到ID
+		layer.load();
+		$.ajax({
+			type : 'POST',
+			dataType : 'json',
+			url : './article/getArticle',
+			data : {"articleId":articleId},
+			success : function(data){
+				if(data.success){
+					$(".articleTitle").append('<h3>' + data.data.title + '</h3>');
+					$(".article_content").append(data.data.content);
+					$(".userName").text(data.data.userName);
+					$(".delArticle").attr("onclick","delArticle('" + data.data.articleId + "');");
+					$(".views").text('阅读(' + data.data.views + ')');
+					$(".likes").text('点赞(' + data.data.likes + ')');
+				}else{
+					layer.msg(data.msg);
+				}
+				layer.closeAll('loading');
+			}
+		});
+		
+	});
+</script>
